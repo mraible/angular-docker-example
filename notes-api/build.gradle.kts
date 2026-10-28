@@ -1,0 +1,114 @@
+import com.github.gradle.node.npm.task.NpxTask
+
+plugins {
+	kotlin("jvm") version "2.3.21"
+	kotlin("plugin.spring") version "2.3.21"
+	id("org.springframework.boot") version "4.1.2"
+	id("io.spring.dependency-management") version "1.1.7"
+	kotlin("plugin.jpa") version "2.3.21"
+	id("com.github.node-gradle.node") version "7.1.0"
+	id("com.google.cloud.tools.jib") version "3.5.4"
+}
+
+group = "com.okta.developer"
+version = "0.0.1-SNAPSHOT"
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation("org.springframework.boot:spring-boot-h2console")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-data-rest")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-webmvc")
+	implementation("com.okta.spring:okta-spring-boot-starter:3.1.0")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("tools.jackson.module:jackson-module-kotlin")
+	if (project.hasProperty("prod")) {
+		runtimeOnly("org.postgresql:postgresql")
+	} else {
+		runtimeOnly("com.h2database:h2")
+	}
+	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-data-rest-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+kotlin {
+	compilerOptions {
+		freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+	}
+}
+
+allOpen {
+	annotation("jakarta.persistence.Entity")
+	annotation("jakarta.persistence.MappedSuperclass")
+	annotation("jakarta.persistence.Embeddable")
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
+}
+
+val profile = if (project.hasProperty("prod")) "prod" else "dev"
+
+tasks.bootRun {
+    args("--spring.profiles.active=${profile}")
+}
+
+val spa = "${projectDir}/../notes"
+
+node {
+    download.set(true)
+    version.set("24.22.1")
+    nodeProjectDir.set(file(spa))
+}
+
+val buildWeb = tasks.register<NpxTask>("buildNpm") {
+    dependsOn(tasks.npmInstall)
+    command.set("ng")
+    args.set(listOf("build"))
+    inputs.dir("${spa}/src")
+    inputs.dir(fileTree("${spa}/node_modules").exclude("${spa}/.cache"))
+    outputs.dir("${spa}/dist")
+}
+
+tasks.processResources {
+    rename("application-${profile}.properties", "application.properties")
+    if (profile == "prod") {
+        dependsOn(buildWeb)
+        from("${spa}/dist/notes/browser") {
+            into("static")
+        }
+    }
+}
+
+jib {
+    from {
+        platforms {
+            platform {
+                architecture = (findProperty("jibArchitecture") ?: "amd64").toString()
+                os = "linux"
+            }
+        }
+    }
+    to {
+        image = "mraible/bootiful-angular"
+    }
+    container {
+        environment = mapOf("SPRING_PROFILES_ACTIVE" to profile)
+    }
+}

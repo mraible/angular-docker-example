@@ -1,0 +1,53 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+    <li class="breadcrumb-item"><a routerLink="/notes">Notes</a></li>
+    <li class="breadcrumb-item active">{{ note()?.id ? 'Edit' : 'New' }}</li>
+  </ol>
+</nav>
+<h2>Notes Detail</h2>
+@if (feedback(); as feedback) {
+  <div class="alert alert-{{ feedback.type }}">{{ feedback.message }}</div>
+}
+@if (note(); as note) {
+  <form #editForm="ngForm" (ngSubmit)="save(note)">
+    <div class="mb-3">
+      <label>Id</label>
+      {{ note.id || 'n/a' }}
+    </div>
+
+    <div class="form-floating mb-3">
+      <input
+        [(ngModel)]="note.title"
+        id="title"
+        name="title"
+        #title="ngModel"
+        class="form-control"
+        placeholder="title"
+        required
+        [class.is-invalid]="title.touched && title.invalid"
+        [class.is-valid]="title.touched && title.valid"
+      />
+      <label for="title">Title</label>
+      @if (title.invalid) {
+        <div class="invalid-feedback d-block">Title is required</div>
+      }
+    </div>
+
+    <div class="form-floating mb-3">
+      <input
+        [(ngModel)]="note.text"
+        id="text"
+        name="text"
+        class="form-control"
+        placeholder="text"
+      />
+      <label for="text">Text</label>
+    </div>
+
+    <div class="mt-3">
+      <button type="submit" class="btn btn-primary" [disabled]="!editForm.form.valid">Save</button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+}
