@@ -1,3 +1,3 @@
-@if (auth.isAuthenticated()) {
+@if (auth.isAuthenticated$ | async) {
   <p><a routerLink="/notes">View Notes</a></p>
 }

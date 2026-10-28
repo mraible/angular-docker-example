@@ -1,23 +1,33 @@
 import {
   ApplicationConfig,
-  importProvidersFrom,
-  inject,
-  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
+  importProvidersFrom,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authHttpInterceptorFn, provideAuth0 } from '@auth0/auth0-angular';
 import { routes } from './app.routes';
-import { AuthService } from './shared/auth-service';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { environment } from '../environments/environment';
+
+const config = {
+  domain: 'dev-06bzs1cu.us.auth0.com',
+  clientId: 'GlzZCL2mpQvStRsLVQvR57kyVGCqwKcy',
+  authorizationParams: {
+    redirect_uri: window.location.origin + '/home',
+    audience: 'http://localhost:8080',
+  },
+  httpInterceptor: {
+    allowedList: [`${environment.apiUrl}/*`],
+  },
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authHttpInterceptorFn])),
     provideRouter(routes, withComponentInputBinding()),
-    // find out who's logged in before the first route loads, so the guard knows
-    provideAppInitializer(() => inject(AuthService).loadUser()),
+    provideAuth0(config),
     importProvidersFrom(NgbModule),
   ],
 };

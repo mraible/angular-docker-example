@@ -7,13 +7,7 @@
 <h2>Notes List</h2>
 <form (ngSubmit)="onSearch()" class="row g-2">
   <div class="col-auto">
-    <input
-      [(ngModel)]="filter.title"
-      type="search"
-      name="query"
-      placeholder="Title"
-      class="form-control"
-    />
+    <input [(ngModel)]="filter.title" type="search" name="query" placeholder="Title" class="form-control" />
   </div>
   <div class="col-auto">
     <button type="submit" class="btn btn-primary">Search</button>

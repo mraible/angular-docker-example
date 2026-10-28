@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { AuthService } from '@auth0/auth0-angular';
+import { of } from 'rxjs';
 import { Home } from './home';
 
 describe('Home', () => {
@@ -11,7 +11,13 @@ describe('Home', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Home],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        {
+          provide: AuthService,
+          useValue: { isAuthenticated$: of(false) },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Home);

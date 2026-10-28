@@ -30,7 +30,7 @@ export class NoteList implements OnInit {
   search(): void {
     this.filter.page = this.page - 1;
     this.noteService.find(this.filter).subscribe({
-      next: (page) => {
+      next: page => {
         this.notes.set(page.content);
         this.total.set(page.totalElements);
       },

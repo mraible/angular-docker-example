@@ -24,14 +24,14 @@ export class NoteEdit implements OnInit {
       return;
     }
     this.noteService.findById(this.id()).subscribe({
-      next: (note) => this.note.set(note),
+      next: note => this.note.set(note),
       error: () => this.feedback.set({ type: 'warning', message: 'Error loading.' }),
     });
   }
 
   save(note: Note): void {
     this.noteService.save(note).subscribe({
-      next: (saved) => {
+      next: saved => {
         this.note.set(saved);
         this.feedback.set({ type: 'success', message: 'Save was successful!' });
         setTimeout(() => this.router.navigate(['/notes']), 1000);

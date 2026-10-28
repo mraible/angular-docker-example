@@ -73,8 +73,7 @@
               "buildTarget": "notes:build:production"
             },
             "development": {
-              "buildTarget": "notes:build:development",
-              "proxyConfig": "src/proxy.conf.json"
+              "buildTarget": "notes:build:development"
             }
           },
           "defaultConfiguration": "development"
