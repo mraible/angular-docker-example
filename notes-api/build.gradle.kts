@@ -114,3 +114,22 @@ jib {
         jvmFlags = listOf("-XX:TieredStopAtLevel=1")
     }
 }
+
+tasks.bootBuildImage {
+    environment.set(mapOf(
+        // Create a CDS archive with a training run, and use only the C1 compiler, for faster startup
+        "BP_JVM_CDS_ENABLED" to "true",
+        "BPE_DELIM_JAVA_TOOL_OPTIONS" to " ",
+        "BPE_APPEND_JAVA_TOOL_OPTIONS" to "-XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=48M",
+        // Paketo's memory calculator assumes 250 threads, which doesn't fit in 512 MB (Render's free plan)
+        "BPE_OVERRIDE_BPL_JVM_THREAD_COUNT" to "50",
+        // The training run starts the app without a database or Auth0, so give it placeholders
+        "TRAINING_RUN_JAVA_TOOL_OPTIONS" to listOf(
+            "-Dokta.oauth2.issuer=https://example.auth0.com/", "-Dokta.oauth2.audience=training",
+            "-Dokta.oauth2.client-id=training", "-Dokta.oauth2.client-secret=training",
+            "-Dspring.jpa.properties.hibernate.boot.allow_jdbc_metadata_access=false",
+            "-Dspring.jpa.hibernate.ddl-auto=none",
+            "-Dspring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect",
+        ).joinToString(" "),
+    ))
+}
