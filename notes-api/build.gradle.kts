@@ -110,5 +110,7 @@ jib {
     }
     container {
         environment = mapOf("SPRING_PROFILES_ACTIVE" to profile)
+        // Use only the C1 compiler: much faster startup on a small CPU, at some cost to peak throughput
+        jvmFlags = listOf("-XX:TieredStopAtLevel=1")
     }
 }
