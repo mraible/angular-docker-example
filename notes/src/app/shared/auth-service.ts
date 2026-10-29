@@ -24,7 +24,7 @@ export class AuthService {
 
   // Spring Security starts the OAuth 2.0 flow at this endpoint
   login(): void {
-    this.doc.location.href = `${this.doc.location.origin}${this.location.prepareExternalUrl('oauth2/authorization/okta')}`;
+    this.doc.location.href = `${this.doc.location.origin}${this.location.prepareExternalUrl('oauth2/authorization/auth0')}`;
   }
 
   // Ends the Spring Boot session, then signs out of Auth0 with the URL it returns

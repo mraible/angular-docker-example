@@ -29,7 +29,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
-	implementation("com.okta.spring:okta-spring-boot-starter:3.1.0")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -125,8 +124,15 @@ tasks.bootBuildImage {
         "BPE_OVERRIDE_BPL_JVM_THREAD_COUNT" to "50",
         // The training run starts the app without a database or Auth0, so give it placeholders
         "TRAINING_RUN_JAVA_TOOL_OPTIONS" to listOf(
-            "-Dokta.oauth2.issuer=https://example.auth0.com/", "-Dokta.oauth2.audience=training",
-            "-Dokta.oauth2.client-id=training", "-Dokta.oauth2.client-secret=training",
+            "-DAUTH0_ISSUER=https://example.auth0.com/", "-DAUTH0_AUDIENCE=training",
+            "-DAUTH0_CLIENT_ID=training", "-DAUTH0_CLIENT_SECRET=training",
+            // a provider with fixed endpoints, so the training run doesn't fetch Auth0's OIDC discovery document
+            "-Dspring.security.oauth2.client.registration.auth0.provider=training",
+            "-Dspring.security.oauth2.client.registration.auth0.authorization-grant-type=authorization_code",
+            "-Dspring.security.oauth2.client.registration.auth0.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}",
+            "-Dspring.security.oauth2.client.provider.training.authorization-uri=https://example.auth0.com/authorize",
+            "-Dspring.security.oauth2.client.provider.training.token-uri=https://example.auth0.com/oauth/token",
+            "-Dspring.security.oauth2.client.provider.training.jwk-set-uri=https://example.auth0.com/.well-known/jwks.json",
             "-Dspring.jpa.properties.hibernate.boot.allow_jdbc_metadata_access=false",
             "-Dspring.jpa.hibernate.ddl-auto=none",
             "-Dspring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect",

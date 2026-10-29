@@ -39,4 +39,5 @@ out/
 ### Kotlin ###
 .kotlin
 .okta.env
+.auth0.env
 src/main/docker/.env

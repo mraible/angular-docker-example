@@ -26,7 +26,7 @@ class MockSecurityConfiguration {
     private fun clientRegistration(): ClientRegistration.Builder {
         val metadata: MutableMap<String, Any> = HashMap()
         metadata["end_session_endpoint"] = "https://angular.org/logout"
-        return ClientRegistration.withRegistrationId("okta")
+        return ClientRegistration.withRegistrationId("auth0")
             .redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
             .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
             .authorizationGrantType(AUTHORIZATION_CODE)

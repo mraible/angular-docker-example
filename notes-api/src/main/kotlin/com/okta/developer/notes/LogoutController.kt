@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 class LogoutController(clientRegistrationRepository: ClientRegistrationRepository) {
 
     val registration: ClientRegistration =
-        clientRegistrationRepository.findByRegistrationId("okta")!!
+        clientRegistrationRepository.findByRegistrationId("auth0")!!
 
     @PostMapping("/api/logout")
     fun logout(request: HttpServletRequest): ResponseEntity<*> {
